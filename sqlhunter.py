@@ -112,3 +112,20 @@ class SQLInjectionTester:
         )
 
         return list(set(all_payloads))  # حذف Payloadهای تکراری
+
+
+
+    ##############################################################################################################
+    def send_request(self, params=None, data=None):
+
+        try:
+            if self.method == "GET":
+                response = requests.get(self.url, params=params, headers=self.headers, cookies=self.cookies, timeout=self.timeout)
+            elif self.method == "POST":
+                response = requests.post(self.url, data=data, headers=self.headers, cookies=self.cookies, timeout=self.timeout)
+            else:
+                raise ValueError("متد نامعتبر. فقط GET و POST پشتیبانی می‌شوند.")
+            return response
+        except requests.exceptions.RequestException as e:
+            print(f"[خطا] مشکل در ارتباط: {e}")
+            return None
