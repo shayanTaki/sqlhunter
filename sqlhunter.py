@@ -348,3 +348,27 @@ class SQLInjectionTester:
         print(f"گزارش در فایل '{report_filename}' ذخیره شد.")
 
 
+if __name__ == "__main__":
+    animated_print("shirdalcode.ir", delay=0.2)
+    animated_print("shayan taki", delay=0.3)
+    print("-" * 30)
+
+    target_url = input("لطفاً آدرس URL مورد نظر برای تست را وارد کنید: ")
+    test_method = input("متد درخواست (GET یا POST) را وارد کنید (پیش‌فرض GET): ").strip().upper() or "GET"
+
+    request_data = None
+    if test_method == "POST":
+        data_input = input("لطفاً داده‌های POST را به صورت key=value&key=value وارد کنید: ").strip()
+        if data_input:
+            request_data = data_input
+
+    tester = SQLInjectionTester(
+        url=target_url,
+        method=test_method,
+        data=request_data,
+        headers={"User-Agent": "SQLInjectionTester/1.2"},
+        delay=0.5,
+        timeout=10
+    )
+    tester.run()
+
