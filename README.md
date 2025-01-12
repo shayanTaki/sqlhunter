@@ -52,12 +52,9 @@ parameters = {"[نام پارامتر 1]": "[مقدار اولیه]", "[نام �
 
 # اجرای تست
 tester.run(parameters)
-content_copy
-download
-Use code with caution.
-Markdown
 
-پارامترهای SQLInjectionTester:
+
+پارامترهای SQLInjectionTester
 
 url: آدرس وب‌سایت هدف.
 
@@ -87,10 +84,6 @@ tester = SQLInjectionTester(
 )
 
 tester.run(parameters={"q": "test"})
-content_copy
-download
-Use code with caution.
-Python
 
 مثال استفاده برای متد POST:
 
@@ -103,12 +96,7 @@ tester = SQLInjectionTester(
 )
 
 tester.run(parameters={"username": "admin", "password": "password"})
-content_copy
-download
-Use code with caution.
-Python
 
-نمونه خروجی:
 
 شروع تست SQL Injection برای: http://example.com/search
 [تست] پارامتر: q با payload: '
@@ -121,11 +109,7 @@ Python
 [تست] پارامتر: q با payload: 1' OR '1'='1
 [!] آسیب‌پذیری پیدا شد: q با payload: 1' OR '1'='1
 تست به پایان رسید.
-content_copy
-download
-Use code with caution.
 
-توضیحات خروجی:
 
 شروع تست SQL Injection برای: [آدرس] : نشان‌دهنده شروع فرآیند تست برای آدرس مشخص شده است.
 
