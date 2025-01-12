@@ -217,3 +217,24 @@ class SQLInjectionTester:
                     if parameter_name in parsed_data:
                         parsed_data[parameter_name][0] += payload
                     test_data = urlencode(parsed_data, doseq=True)
+                start_time = time.time()
+                response = self.send_request(data=test_data)
+                end_time = time.time()
+
+                is_error, error_keyword = self.analyze_response(response)
+                if is_error:
+                    print(f"    [!] آسیب‌پذیری احتمالی (خطا): با Payload: {payload}")
+                    is_vulnerable = True
+                    if parameter_name not in self.vulnerabilities:
+                        self.vulnerabilities[parameter_name] = []
+                    self.vulnerabilities[parameter_name].append(
+                        {"type": "Error-based", "payload": payload, "error": error_keyword})
+                elif self.analyze_response_time(response, end_time - start_time - self.delay):
+                    print(f"    [!] آسیب‌پذیری احتمالی (مبتنی بر زمان): با Payload: {payload}")
+                    is_vulnerable = True
+                    if parameter_name not in self.vulnerabilities:
+                        self.vulnerabilities[parameter_name] = []
+                    self.vulnerabilities[parameter_name].append(
+                        {"type": "Time-based", "payload": payload, "error": None})
+
+
