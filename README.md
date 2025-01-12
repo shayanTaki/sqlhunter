@@ -155,6 +155,4 @@ ShirdalCode.ir
 
 برای ارتباط با توسعه‌دهندگان یا گزارش مشکلات می‌توانید از طریق پروفایل گیت‌هاب Shayan Taki یا وب‌سایت ShirdalCode.ir اقدام کنید.
 
-content_copy
-download
-Use code with caution.
+
