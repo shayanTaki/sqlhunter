@@ -141,3 +141,12 @@ class SQLInjectionTester:
             if keyword in response.text.lower():
                 return True, keyword  # Return True and the keyword
         return False, None
+
+
+    def analyze_response_time(self, response, original_time):
+        if response is None:
+            return False
+        time_difference = response.elapsed.total_seconds() - original_time
+        if time_difference > 3:  # آستانه زمانی (قابل تنظیم)
+            return True
+        return False
