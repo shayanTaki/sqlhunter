@@ -303,3 +303,48 @@ class SQLInjectionTester:
         self.generate_report()
 
 
+    def generate_report(self):
+        parsed_url = urlparse(self.url)
+        base_filename = parsed_url.netloc.replace(".", "_") + "_" + parsed_url.path.replace("/", "_").strip("_")
+        report_filename = f"report_{base_filename}.txt"
+
+        with open(report_filename, "w", encoding="utf-8") as f:
+            f.write(f"گزارش تست SQL Injection برای: {self.url}\n\n")
+
+            if self.vulnerabilities:
+                f.write("آسیب‌پذیری‌های احتمالی یافت شده:\n")
+                for param, vulns in self.vulnerabilities.items():
+                    f.write(f"\nپارامتر: {param}\n")
+                    for vuln in vulns:
+                        f.write(f"  نوع: {vuln['type']}\n")
+                        f.write(f"  Payload: {vuln['payload']}\n")
+                        if vuln['error']:
+                            f.write(f"  Error: یافتن کلیدواژه '{vuln['error']}'\n")
+                        f.write("-" * 30 + "\n")
+            else:
+                f.write("هیچ آسیب‌پذیری SQL Injection احتمالی یافت نشد.\n")
+
+            f.write("\nتحلیل:\n")
+            if self.vulnerabilities:
+                f.write("با توجه به نتایج تست، به نظر می‌رسد که آسیب‌پذیری‌های SQL Injection در پارامترهای مشخص شده وجود دارد. ")
+                f.write("توصیه می‌شود بررسی دقیق‌تر و اقدامات اصلاحی انجام شود.\n")
+                for param, vulns in self.vulnerabilities.items():
+                    error_based_count = sum(1 for v in vulns if v['type'] == 'Error-based')
+                    time_based_count = sum(1 for v in vulns if v['type'] == 'Time-based')
+                    boolean_based_count = sum(1 for v in vulns if v['type'] == 'Boolean-based')
+                    f.write(f"  - پارامتر '{param}': ")
+                    if error_based_count > 0:
+                        f.write(f"({error_based_count} مورد مبتنی بر خطا) ")
+                    if time_based_count > 0:
+                        f.write(f"({time_based_count} مورد مبتنی بر زمان) ")
+                    if boolean_based_count > 0:
+                        f.write(f"({boolean_based_count} مورد مبتنی بر Boolean) ")
+                    f.write("\n")
+
+            else:
+                f.write("با استفاده از Payloadهای تست شده، هیچ نشانه‌ای از آسیب‌پذیری SQL Injection مشاهده نشد. ")
+                f.write("با این حال، این موضوع به معنای عدم وجود آسیب‌پذیری به طور قطع نیست و توصیه می‌شود تست‌های جامع‌تری انجام شود.\n")
+
+        print(f"گزارش در فایل '{report_filename}' ذخیره شد.")
+
+
