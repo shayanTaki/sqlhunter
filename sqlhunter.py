@@ -129,3 +129,15 @@ class SQLInjectionTester:
         except requests.exceptions.RequestException as e:
             print(f"[خطا] مشکل در ارتباط: {e}")
             return None
+
+
+
+    def analyze_response(self, response):
+        if response is None:
+            return False, None
+
+        suspicious_keywords = ["syntax error", "sql", "database", "mysql", "ORA-", "error in your SQL syntax", "SQLSTATE"]
+        for keyword in suspicious_keywords:
+            if keyword in response.text.lower():
+                return True, keyword  # Return True and the keyword
+        return False, None
