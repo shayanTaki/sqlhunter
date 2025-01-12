@@ -276,3 +276,30 @@ class SQLInjectionTester:
         return is_vulnerable
 
 
+    def run(self, parameters=None):
+        print(f"شروع تست SQL Injection برای: {self.url}")
+
+        if self.method == "GET":
+            parsed_url = urlparse(self.url)
+            query_params = parse_qs(parsed_url.query)
+            if parameters is None:
+                parameters = query_params
+            for key in parameters:
+                self.test_parameter(key, original_params=query_params)
+
+        elif self.method == "POST":
+            if parameters is None and self.data is not None:
+                if isinstance(self.data, dict):
+                    parameters = self.data.keys()
+                else: # اگر داده string باشد
+                    parameters = parse_qs(self.data).keys()
+            if parameters:
+                for key in parameters:
+                    self.test_parameter(key, original_data=self.data)
+            else:
+                print("[!] پارامتری برای تست در درخواست POST یافت نشد.")
+
+        print("تست به پایان رسید.")
+        self.generate_report()
+
+
