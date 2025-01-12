@@ -150,3 +150,10 @@ class SQLInjectionTester:
         if time_difference > 3:  # آستانه زمانی (قابل تنظیم)
             return True
         return False
+
+
+    def analyze_response_boolean(self, response1, response2):
+        if response1 is None or response2 is None:
+            return False
+        # مقایسه محتوای پاسخ‌ها (می‌تواند پیچیده‌تر شود)
+        return response1.text != response2.text or response1.status_code != response2.status_code
